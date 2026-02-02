@@ -34,6 +34,9 @@ func main() {
 	if err := database.RunMigrations(ctx, pool); err != nil {
 		log.Fatalf("migration failed: %v", err)
 	}
+	if err := database.RunSeeders(ctx, pool); err != nil {
+		log.Fatalf("seed failed: %v", err)
+	}
 
 	repo := postgresuser.NewUserRepository(pool)
 	service := usersservice.NewService(repo)

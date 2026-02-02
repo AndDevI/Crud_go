@@ -16,11 +16,11 @@ func (h Handler) createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	created, err := usersusecases.CreateUser(r.Context(), h.service, req)
+	_, err := usersusecases.CreateUser(r.Context(), h.service, req)
 	if err != nil {
 		h.handleUserError(w, err)
 		return
 	}
 
-	writeSuccess(w, http.StatusCreated, helpers.MsgUserCreatedSuccess, created)
+	writeSuccess(w, http.StatusCreated, helpers.MsgUserCreatedSuccess, nil)
 }
