@@ -3,13 +3,13 @@ package users
 import (
 	"context"
 
-	usersdto "crmata-go/internal/application/dto/users"
+	usersrequest "crmata-go/internal/application/request/users"
 	usersservice "crmata-go/internal/application/service/users"
 	domain "crmata-go/internal/domain/user"
 	"crmata-go/internal/helpers"
 )
 
-func UpdateUser(ctx context.Context, service usersservice.Service, id int64, in usersdto.UpdateUserInput) (domain.User, error) {
+func UpdateUser(ctx context.Context, service usersservice.Service, id int64, in usersrequest.UpdateUserRequest) (domain.User, error) {
 	if id <= 0 {
 		return domain.User{}, domain.ErrInvalidID
 	}

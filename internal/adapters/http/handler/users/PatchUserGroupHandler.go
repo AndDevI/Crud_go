@@ -5,12 +5,13 @@ import (
 	"errors"
 	"net/http"
 
+	usersrequest "crmata-go/internal/application/request/users"
 	usersusecases "crmata-go/internal/application/usecases/users"
 	"crmata-go/internal/helpers"
 )
 
 func (h Handler) patchUserGroup(w http.ResponseWriter, r *http.Request, id int64) {
-	groupID, err := decodeNullableInt64Field(r, "group_id")
+	groupID, err := decodeNullableGroupID(r)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
 		return
@@ -25,23 +26,22 @@ func (h Handler) patchUserGroup(w http.ResponseWriter, r *http.Request, id int64
 	writeSuccess(w, http.StatusOK, helpers.MsgUserGroupUpdated, updated)
 }
 
-func decodeNullableInt64Field(r *http.Request, field string) (*int64, error) {
-	var raw map[string]json.RawMessage
-	if err := json.NewDecoder(r.Body).Decode(&raw); err != nil {
+func decodeNullableGroupID(r *http.Request) (*int64, error) {
+	var req usersrequest.UpdateUserGroupRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.New(helpers.MsgInvalidJSONBody)
 	}
 
-	value, ok := raw[field]
-	if !ok {
+	if req.GroupID == nil {
 		return nil, errors.New(helpers.MsgGroupIDRequired)
 	}
 
-	if string(value) == "null" {
+	if string(*req.GroupID) == "null" {
 		return nil, nil
 	}
 
 	var parsed int64
-	if err := json.Unmarshal(value, &parsed); err != nil {
+	if err := json.Unmarshal(*req.GroupID, &parsed); err != nil {
 		return nil, errors.New(helpers.MsgGroupIDMustBeNumber)
 	}
 

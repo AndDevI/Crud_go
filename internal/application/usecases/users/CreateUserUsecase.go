@@ -3,13 +3,13 @@ package users
 import (
 	"context"
 
-	usersdto "crmata-go/internal/application/dto/users"
+	usersrequest "crmata-go/internal/application/request/users"
 	usersservice "crmata-go/internal/application/service/users"
 	domain "crmata-go/internal/domain/user"
 	"crmata-go/internal/helpers"
 )
 
-func CreateUser(ctx context.Context, service usersservice.Service, in usersdto.CreateUserInput) (domain.User, error) {
+func CreateUser(ctx context.Context, service usersservice.Service, in usersrequest.CreateUserRequest) (domain.User, error) {
 	entity, err := domain.NewUser(
 		in.Name,
 		in.Email,

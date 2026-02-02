@@ -1,6 +1,8 @@
-package usersdto
+package usersrequest
 
-type CreateUserInput struct {
+import "encoding/json"
+
+type CreateUserRequest struct {
 	Name      string  `json:"name"`
 	Email     string  `json:"email"`
 	Password  string  `json:"password"`
@@ -10,7 +12,7 @@ type CreateUserInput struct {
 	GroupID   *int64  `json:"group_id"`
 }
 
-type UpdateUserInput struct {
+type UpdateUserRequest struct {
 	Name      string  `json:"name"`
 	Email     string  `json:"email"`
 	Password  *string `json:"password"`
@@ -20,8 +22,12 @@ type UpdateUserInput struct {
 	GroupID   *int64  `json:"group_id"`
 }
 
-type ListUsersInput struct {
+type ListUsersRequest struct {
 	Search        string
 	SortBy        string
 	SortDirection string
+}
+
+type UpdateUserGroupRequest struct {
+	GroupID *json.RawMessage `json:"group_id"`
 }
