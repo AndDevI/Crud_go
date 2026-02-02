@@ -13,7 +13,7 @@ import (
 	healthhandler "crmata-go/internal/adapters/http/handler/health"
 	usershandler "crmata-go/internal/adapters/http/handler/users"
 	httproutes "crmata-go/internal/adapters/http/routes"
-	postgresadapter "crmata-go/internal/adapters/postgres"
+	postgresuser "crmata-go/internal/adapters/postgres/user"
 	usersservice "crmata-go/internal/application/service/users"
 	"crmata-go/internal/infrastructure/config"
 	"crmata-go/internal/infrastructure/database"
@@ -35,7 +35,7 @@ func main() {
 		log.Fatalf("migration failed: %v", err)
 	}
 
-	repo := postgresadapter.NewUserRepository(pool)
+	repo := postgresuser.NewUserRepository(pool)
 	service := usersservice.NewService(repo)
 	usersHandler := usershandler.New(service)
 	healthHandler := healthhandler.New()

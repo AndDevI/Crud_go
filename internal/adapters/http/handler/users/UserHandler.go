@@ -9,6 +9,7 @@ import (
 	"crmata-go/internal/adapters/http/shared"
 	usersservice "crmata-go/internal/application/service/users"
 	domain "crmata-go/internal/domain/user"
+	userrepository "crmata-go/internal/domain/user/repository"
 	"crmata-go/internal/helpers"
 )
 
@@ -70,11 +71,11 @@ func (h Handler) handleUserError(w http.ResponseWriter, err error) {
 		errors.Is(err, domain.ErrInvalidGroupID),
 		errors.Is(err, domain.ErrInvalidActive):
 		writeError(w, http.StatusBadRequest, err.Error())
-	case errors.Is(err, domain.ErrNotFound):
+	case errors.Is(err, userrepository.ErrNotFound):
 		writeError(w, http.StatusNotFound, err.Error())
-	case errors.Is(err, domain.ErrEmailAlreadyExists):
+	case errors.Is(err, userrepository.ErrEmailAlreadyExists):
 		writeError(w, http.StatusConflict, err.Error())
-	case errors.Is(err, domain.ErrGroupNotFound):
+	case errors.Is(err, userrepository.ErrGroupNotFound):
 		writeError(w, http.StatusBadRequest, err.Error())
 	default:
 		writeError(w, http.StatusInternalServerError, helpers.MsgInternalServerError)

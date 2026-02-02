@@ -1,4 +1,4 @@
-package postgres
+package user
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	domain "crmata-go/internal/domain/user"
+	userrepository "crmata-go/internal/domain/user/repository"
 	"crmata-go/internal/helpers"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -45,7 +46,7 @@ func (r UserRepository) Create(ctx context.Context, u domain.User) (domain.User,
 	return created, nil
 }
 
-func (r UserRepository) FindAll(ctx context.Context, filter domain.ListFilter) ([]domain.User, error) {
+func (r UserRepository) FindAll(ctx context.Context, filter userrepository.ListFilter) ([]domain.User, error) {
 	sortBy := helpers.SafeOrderBy(filter.SortBy, map[string]string{
 		"name":       "name",
 		"email":      "email",
@@ -105,7 +106,7 @@ func (r UserRepository) FindByID(ctx context.Context, id int64) (domain.User, er
 	u, err := scanUserRow(r.pool.QueryRow(ctx, query, id))
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return domain.User{}, domain.ErrNotFound
+			return domain.User{}, userrepository.ErrNotFound
 		}
 		return domain.User{}, err
 	}
@@ -140,7 +141,7 @@ func (r UserRepository) Update(ctx context.Context, u domain.User) (domain.User,
 	))
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return domain.User{}, domain.ErrNotFound
+			return domain.User{}, userrepository.ErrNotFound
 		}
 		return domain.User{}, mapPostgresError(err)
 	}
@@ -161,7 +162,7 @@ func (r UserRepository) UpdateGroupID(ctx context.Context, id int64, groupID *in
 	updated, err := scanUserRow(r.pool.QueryRow(ctx, query, id, groupID))
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return domain.User{}, domain.ErrNotFound
+			return domain.User{}, userrepository.ErrNotFound
 		}
 		return domain.User{}, mapPostgresError(err)
 	}
@@ -181,7 +182,7 @@ func (r UserRepository) Delete(ctx context.Context, id int64) error {
 		return err
 	}
 	if result.RowsAffected() == 0 {
-		return domain.ErrNotFound
+		return userrepository.ErrNotFound
 	}
 	return nil
 }
@@ -217,16 +218,16 @@ func scanUserRow(row pgx.Row) (domain.User, error) {
 
 func mapPostgresError(err error) error {
 	if errors.Is(err, pgx.ErrNoRows) {
-		return domain.ErrNotFound
+		return userrepository.ErrNotFound
 	}
 
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) {
 		switch pgErr.Code {
 		case "23505":
-			return domain.ErrEmailAlreadyExists
+			return userrepository.ErrEmailAlreadyExists
 		case "23503":
-			return domain.ErrGroupNotFound
+			return userrepository.ErrGroupNotFound
 		}
 	}
 

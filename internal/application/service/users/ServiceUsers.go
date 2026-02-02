@@ -1,11 +1,11 @@
 package usersservice
 
-import domain "crmata-go/internal/domain/user"
+import userrepository "crmata-go/internal/domain/user/repository"
 
 type Service struct {
-	Repo domain.Repository
+	Repo userrepository.Repository
 }
 
-func NewService(repo domain.Repository) Service {
+func NewService(repo userrepository.Repository) Service {
 	return Service{Repo: repo}
 }

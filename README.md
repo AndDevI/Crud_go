@@ -1,17 +1,27 @@
 # CRM Go API (DDD + Hexagonal + Clean)
 
-Projeto em Go com arquitetura em camadas:
+Projeto em Go com arquitetura em camadas (DDD + Hexagonal + Clean). Abaixo está a função de cada pasta e dos principais conceitos:
 
-- `internal/domain`: entidades e regras de negócio puras
-- `internal/application/dto/users`: DTOs de usuários
-- `internal/application/service/users`: service/contexto de usuários
-- `internal/application/usecases/users`: casos de uso de usuários
-- `internal/adapters/http/handler/users`: handlers HTTP de usuários
-- `internal/adapters/http/routes/users`: rotas HTTP de usuários
-- `internal/adapters/postgres`: adaptadores de saída PostgreSQL
-- `internal/infrastructure`: configuração e bootstrap técnico
-- `internal/helpers`: utilitários de segurança
-- `cmd/api`: ponto de entrada da aplicação
+## Estrutura de pastas e responsabilidades
+
+- `cmd/api`: ponto de entrada da aplicação. Aqui a aplicação é montada (composition root): carrega config, conecta no banco, roda migrations, cria repositórios/serviços/handlers e sobe o servidor HTTP.
+- `internal/domain`: núcleo do domínio. Contém entidades e regras de negócio puras, sem dependências de infraestrutura.
+  - `internal/domain/user`: entidade `User` e validações (ex.: e-mail, senha, group_id).
+  - `internal/domain/user/repository`: contrato (interface) de persistência. O **Repository** define o que a aplicação precisa do banco, sem dizer como o banco é acessado.
+- `internal/application`: camada de aplicação. Orquestra casos de uso e transforma dados de entrada/saída do mundo externo.
+  - `internal/application/request`: DTOs de entrada usados pelos handlers (ex.: `CreateUserRequest`).
+  - `internal/application/usecases`: **Use cases** representam ações do sistema (criar, listar, atualizar, deletar). Eles aplicam regras do domínio e chamam o repository via o service.
+  - `internal/application/service`: agrupa dependências por contexto (ex.: `Service` com `Repo`). Serve como “porta” para os use cases, sem acoplar em infraestrutura.
+- `internal/adapters`: camada de adaptação. Conecta o mundo externo (HTTP, banco, etc.) aos contratos da aplicação.
+  - `internal/adapters/http/handler`: **Handlers** HTTP (controllers). Eles validam/parsam a request, chamam use cases e transformam erros em respostas HTTP.
+  - `internal/adapters/http/routes`: definição e registro das rotas (mapeia paths para handlers).
+  - `internal/adapters/http/shared`: helpers para respostas HTTP padronizadas.
+  - `internal/adapters/postgres/user`: implementação concreta do **Repository** usando PostgreSQL (`pgx`). Contém SQL, mapeamento de erros e leitura/escrita de dados.
+- `internal/infrastructure`: detalhes técnicos e bootstrap de infraestrutura.
+  - `internal/infrastructure/config`: leitura de variáveis e configuração da aplicação.
+  - `internal/infrastructure/database`: conexão com Postgres e execução de migrations.
+  - `internal/infrastructure/database/migrations`: arquivos SQL de migração do schema.
+- `internal/helpers`: utilitários compartilhados (segurança, hashing, mensagens, proteção contra SQL injection em `ORDER BY`).
 
 ## Requisitos
 
